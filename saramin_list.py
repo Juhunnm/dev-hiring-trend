@@ -1,6 +1,6 @@
-from itertools import count
+import csv
+from datetime import datetime 
 import math
-
 from playwright.sync_api import sync_playwright
 
 
@@ -8,7 +8,10 @@ JOB_CODE = 87 #웹개발
 JOB_NAME = '웹개발'
 
 LIST_URL = f"https://www.saramin.co.kr/zf_user/jobs/list/job-category?cat_kewd={JOB_CODE}"
-# https://www.saramin.co.kr/zf_user/jobs/list/job-category?cat_kewd=87
+
+today = datetime.now().strftime("%Y%m%d")
+filename = f'jobs_{JOB_NAME}_{today}.csv'
+
 with sync_playwright() as p:
     # true로 했을때 오류 발생(봇 예상)
     browser = p.chromium.launch(headless=False)
@@ -60,9 +63,15 @@ with sync_playwright() as p:
             href = title_tag.get_attribute("href") if title_tag else "없음"
 
             all_jobs.append({
-                "commpany" : company,
+                "company" : company,
                 "title" : title,
                 "href" : href
             })
     print(f"\n총 {len(all_jobs)}개 공고 수집 완료!")
+
+    with open(filename,"w", newline="", encoding='utf-8-sig') as f:
+        writer = csv.DictWriter(f, fieldnames=["company", "title", "href"])
+        writer.writeheader()
+        writer.writerows(all_jobs)
+
     browser.close()
