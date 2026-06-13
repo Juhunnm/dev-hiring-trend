@@ -11,16 +11,8 @@ app = FastAPI()
 def root():
     return {"message": "hello"}
 
-@app.get("/jobs")
-def get_jobs():
-    jobs=[]
-    with open('data/jobs_detail_웹개발_20260610.csv',"r",encoding="utf-8-sig") as f :
-        reader = csv.DictReader(f)
-        for row in reader:
-            jobs.append(row)        
-    return jobs
-
-@app.get('/jobs_db')
+@app.get('/jobs')
 def get_jobs_db(db : Session = Depends(get_db)):
     jobs = db.query(Job).all()
     return jobs
+@app.get

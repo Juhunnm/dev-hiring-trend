@@ -1,7 +1,10 @@
-import csv
 from datetime import datetime 
 import math
+from urllib.parse import parse_qs, urlparse
 from playwright.sync_api import sync_playwright
+
+from server.database import SessionLocal
+from server.models import JobRaw
 
 
 JOB_CODE = 87 #웹개발
@@ -9,19 +12,12 @@ JOB_NAME = '웹개발'
 
 LIST_URL = f"https://www.saramin.co.kr/zf_user/jobs/list/job-category?cat_kewd={JOB_CODE}"
 
-today = datetime.now().strftime("%Y%m%d")
-filename = f'jobs_{JOB_NAME}_{today}.csv'
+db = SessionLocal()
+count = 0
 
 with sync_playwright() as p:
-    # true로 했을때 오류 발생(봇 예상)
     browser = p.chromium.launch(headless=False)
-    
-    # context = browser.new_context(
-    #     user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36"
-    # )
-    # page = context.new_page()
     page = browser.new_page()
-
     # 목록 페이지 접속
     page.goto(LIST_URL)
 
@@ -59,19 +55,28 @@ with sync_playwright() as p:
             title_tag = job.query_selector(".job_tit a")
             title = title_tag.inner_text().strip() if title_tag else "없음"
 
-            # href에서 rec_idx 추출
+            # href 추출
             href = title_tag.get_attribute("href") if title_tag else "없음"
 
-            all_jobs.append({
-                "company" : company,
-                "title" : title,
-                "href" : href
-            })
-    print(f"\n총 {len(all_jobs)}개 공고 수집 완료!")
+            
+            try :
+                #hrefe 에서 rec_idx 추출
+                parsed = parse_qs(urlparse(href).query)
+                rec_idx = parsed['rec_idx'][0]
 
-    with open(filename,"w", newline="", encoding='utf-8-sig') as f:
-        writer = csv.DictWriter(f, fieldnames=["company", "title", "href"])
-        writer.writeheader()
-        writer.writerows(all_jobs)
-
+                job_raw = JobRaw(
+                rec_idx = rec_idx,
+                company = company,
+                title      = title,
+                href       = href,
+                job_name   =JOB_NAME,
+                )
+                db.add(job_raw)
+                db.commit()
+                count += 1
+            except Exception as e:
+                db.rollback()
+            
+    print(f"\n총 {count}개 공고 수집 완료!")
     browser.close()
+db.close()
