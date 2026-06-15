@@ -4,9 +4,9 @@ from turtle import Turtle
 from playwright.sync_api import sync_playwright
 
 
-from config import BASE_URL, TECH_KEYWORDS
-from server.database import SessionLocal
-from server.models import Job, JobRaw
+from backend.config import BASE_URL, TECH_KEYWORDS
+from app.database import SessionLocal
+from app.models import Job, JobRaw
 
 # 본문이랑, 키워드 목록 각각 저장
 

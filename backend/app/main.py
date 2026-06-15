@@ -2,8 +2,8 @@ from collections import Counter
 
 from fastapi import Depends, FastAPI
 from sqlalchemy.orm import Session
-from server.database import get_db
-from server.models import Job
+from app.database import get_db
+from app.models import Job
 
 app = FastAPI()
 
