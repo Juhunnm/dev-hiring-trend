@@ -4,20 +4,15 @@ from turtle import Turtle
 from playwright.sync_api import sync_playwright
 
 
+from config import BASE_URL, TECH_KEYWORDS
 from server.database import SessionLocal
 from server.models import Job, JobRaw
 
 # 본문이랑, 키워드 목록 각각 저장
-BASE_URL = 'https://www.saramin.co.kr'
 
 db = SessionLocal()
 
-TECH_KEYWORDS = [
-    "Python", "Java", "C#", "C++", "JavaScript", "TypeScript",
-    "Spring", "React", "Vue", "Next.js", "Django", "FastAPI",
-    "MySQL", "PostgreSQL", "MongoDB", "Redis",
-    "AWS", "Docker", "Kubernetes", "Git"
-]
+
 
 def extract_keywords(text) :
     found =[]
