@@ -2,9 +2,9 @@ import math
 from urllib.parse import parse_qs, urlparse
 from playwright.sync_api import sync_playwright
 
-from config import BASE_URL, JOB_CATEGORIES, PER_PAGE
-from server.database import SessionLocal
-from server.models import JobRaw
+from backend.config import BASE_URL, JOB_CATEGORIES, PER_PAGE
+from app.database import SessionLocal
+from app.models import JobRaw
 
 db = SessionLocal()
 total_count = 0
