@@ -4,7 +4,7 @@ from playwright.sync_api import sync_playwright
 
 from backend.config import BASE_URL, JOB_CATEGORIES, PER_PAGE
 from app.database import SessionLocal
-from app.models import JobRaw
+from app.models import JobIndex
 
 db = SessionLocal()
 total_count = 0
@@ -63,14 +63,14 @@ with sync_playwright() as p:
                     parsed = parse_qs(urlparse(href).query)
                     rec_idx = parsed['rec_idx'][0]
 
-                    job_raw = JobRaw(
+                    job_index = JobIndex(
                         rec_idx = rec_idx,
                         company = company,
                         title      = title,
                         href       = href,
                         job_name   = job_name,
                     )
-                    db.add(job_raw)
+                    db.add(job_index)
                     db.commit()
                     count += 1
                 except Exception as e:

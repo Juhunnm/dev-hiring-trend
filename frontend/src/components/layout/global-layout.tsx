@@ -20,7 +20,7 @@ export default function GlobalLayout() {
           </div>
         </div>
       </header>
-      <main>
+      <main className="m-auto w-full flex-1 px-2 py-4">
         <Outlet />
       </main>
       <footer>

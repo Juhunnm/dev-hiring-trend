@@ -2,11 +2,11 @@ from code import interact
 
 from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text, UniqueConstraint, func
 
-from server.database import Base
+from app.database import Base
 
 
-class Job(Base):
-    __tablename__ = "jobs"
+class JobDetail(Base):
+    __tablename__ = "job_details"
 
     id         = Column(Integer, primary_key=True, index=True)
     company    = Column(String(255))
@@ -18,8 +18,8 @@ class Job(Base):
     date       = Column(String(20)) 
     created_at = Column(DateTime, default=func.now())
 
-class JobRaw(Base):
-    __tablename__ = "jobs_raw"
+class JobIndex(Base):
+    __tablename__ = "job_indexes"
 
     id         = Column(Integer, primary_key=True, index=True)
     rec_idx    = Column(String(20))

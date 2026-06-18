@@ -6,7 +6,7 @@ from playwright.sync_api import sync_playwright
 
 from backend.config import BASE_URL, TECH_KEYWORDS
 from app.database import SessionLocal
-from app.models import Job, JobRaw
+from app.models import JobDetail, JobIndex
 
 # 본문이랑, 키워드 목록 각각 저장
 
@@ -25,7 +25,7 @@ def extract_keywords(text) :
 today = datetime.now().strftime("%Y%m%d")
 
 
-rows = db.query(JobRaw).filter(JobRaw.is_crawled == False).all()
+rows = db.query(JobIndex).filter(JobIndex.is_crawled == False).all()
 print(f"총 {len(rows)}개 공고 크롤링 시작\n")
 
 
@@ -51,7 +51,7 @@ with sync_playwright() as p :
             content = page.inner_text('body')
             tech_stack = extract_keywords(content)
 
-            job = Job(
+            job_detail = JobDetail(
                 company=row.company,
                 title=row.title,
                 job_name=row.job_name,
@@ -60,14 +60,14 @@ with sync_playwright() as p :
                 href=row.href,
                 date=today
             )
-            db.add(job)
+            db.add(job_detail)
             row.is_crawled = True
             db.commit()
             
         except Exception as e:
             print(f"-> 오류 :{e}")
             db.rollback()
-            job = Job(
+            job = JobDetail(
                 company=row.company,
                 title=row.title,
                 job_name=row.job_name,

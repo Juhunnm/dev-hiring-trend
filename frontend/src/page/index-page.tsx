@@ -1,3 +1,5 @@
+import Terminal from "@/components/dashboard/terminal";
+
 export default function IndexPage() {
-  return <div>indexpage</div>;
+  return <Terminal />;
 }
