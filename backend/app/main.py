@@ -5,14 +5,14 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends, FastAPI
 from sqlalchemy.orm import Session
 from app.database import get_db
-from app.models import JobDetail
+from app.models import JobDetail, JobIndex
 
 load_dotenv()
 app = FastAPI()
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[os.getenv("CLIENT_URL")],
+    allow_origins=[os.getenv("FRONTEND_URL")],
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -26,9 +26,15 @@ def get_jobs(db : Session = Depends(get_db)):
     jobs = db.query(JobDetail).all()
     return jobs
 
+@app.get('/job-categories')
+def get_job_categories(db : Session = Depends(get_db)):
+    job_categories = db.query(JobIndex.job_name).distinct().all()
+    # print(job_categories)
+    return [c.job_name for c in job_categories]
+
 # 직무별 공고
 @app.get('/jobs/{job_name}')
-def get_jobs_by_name(job_name : str,db : Session = Depends(get_db)):
+def get_job_by_name(job_name : str,db : Session = Depends(get_db)):
     jobs= db.query(JobDetail).filter(JobDetail.job_name == job_name).all()
     return jobs
 

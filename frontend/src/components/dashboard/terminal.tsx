@@ -1,35 +1,33 @@
-import { getJobs } from "@/api/terminal";
+import { getJobIndexes } from "@/api/dashboard";
 import { Card, CardContent } from "@/components/ui/card";
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+// import { useEffect, useState } from "react";
 
 export default function Terminal() {
-  const [totalJobs, setTotalJobs] = useState(0);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      const jobs = await getJobs();
-      setTotalJobs(jobs.length);
-    };
-    fetchData();
-  }, []);
-
+  const { data, isPending, error } = useQuery({
+    queryKey: ["job_index"],
+    queryFn: getJobIndexes,
+  });
   return (
     <Card className="font-mono">
       <CardContent className="p-4 space-y-1">
         <div className="flex gap-2 text-sm">
           <span className="text-green-400">$</span>
           <span className="">fetch</span>
-          {/* <span className="text-muted-foreground">
-            --source=job_postings --analyze=tech_stack
-          </span> */}
         </div>
         <div className="ml-5">
           <div className="flex gap-2 text-sm ">
             <span className="text-green-400">&gt;</span>
-            <span className="text-green-400">
-              {totalJobs.toLocaleString()}개 채용공고에서 기술 스택 데이터 수집
-              완료
-            </span>
+            {isPending ? (
+              <span className="text-green-400">데이터 수집 중 ...</span>
+            ) : error ? (
+              <span className="text-red-400">오류 발생 {error.message}</span>
+            ) : (
+              <span className="text-green-400">
+                {data?.length.toLocaleString()}개 채용공고에서 기술 스택 데이터
+                수집 완료
+              </span>
+            )}
           </div>
 
           {/* 메타 정보 */}
