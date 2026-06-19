@@ -10,7 +10,11 @@ import {
 } from "@/components/ui/table";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "../ui/skeleton";
-export default function TopSkillsTable({ selectedRole }) {
+import { useSelectedRole } from "@/store/dashboard";
+
+export default function TopSkillsTable() {
+  const selectedRole = useSelectedRole();
+
   const { data, isPending } = useQuery({
     queryKey: ["stats", selectedRole],
     queryFn: () => getStats(selectedRole),

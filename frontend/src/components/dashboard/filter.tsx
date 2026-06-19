@@ -2,8 +2,12 @@ import { getJobCategories } from "@/api/dashboard";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "../ui/skeleton";
+import { useSelectedRole, useSetSelectedRole } from "@/store/dashboard";
 
-export default function Filter({ selectedRole, onRoleChange }) {
+export default function Filter() {
+  const selectedRole = useSelectedRole();
+  const setSelectedRole = useSetSelectedRole();
+
   const { data, isPending, error } = useQuery({
     queryKey: ["job-categories"],
     queryFn: getJobCategories,
@@ -18,14 +22,15 @@ export default function Filter({ selectedRole, onRoleChange }) {
       <span className="text-muted-foreground">&nbsp;--role&nbsp;</span>
 
       <ToggleGroup
-        className="px-1 py-2"
+        className="px-1 py-2 "
         type="single"
         size="sm"
         defaultValue="all"
         variant="outline"
         spacing={2}
+        value={selectedRole}
         onValueChange={(v) => {
-          if (v) onRoleChange(v);
+          if (v) setSelectedRole(v);
         }}
       >
         {isPending ? (
@@ -34,9 +39,11 @@ export default function Filter({ selectedRole, onRoleChange }) {
             .map((_, i) => <Skeleton key={i} className="w-16 h-7 rounded" />)
         ) : (
           <>
-            <ToggleGroupItem value="all">All</ToggleGroupItem>
+            <ToggleGroupItem className="cursor-pointer" value="all">
+              All
+            </ToggleGroupItem>
             {data?.map((f) => (
-              <ToggleGroupItem key={f} value={f}>
+              <ToggleGroupItem className="cursor-pointer" key={f} value={f}>
                 {f}
               </ToggleGroupItem>
             ))}
