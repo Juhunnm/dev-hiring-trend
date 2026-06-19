@@ -1,10 +1,8 @@
-import csv
 from datetime import datetime
-from turtle import Turtle 
 from playwright.sync_api import sync_playwright
 
 
-from backend.config import BASE_URL, TECH_KEYWORDS
+from config import BASE_URL, TECH_KEYWORDS
 from app.database import SessionLocal
 from app.models import JobDetail, JobIndex
 
@@ -33,7 +31,7 @@ with sync_playwright() as p :
     browser = p.chromium.launch(headless=False)
     page = browser.new_page()
 
-    for i, row in enumerate(rows[:20]):
+    for i, row in enumerate(rows[:100]):
         print(f"[{i+1}/{len(rows)}] {row.company} - {row.title}")
 
         try :

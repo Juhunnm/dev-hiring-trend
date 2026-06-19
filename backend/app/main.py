@@ -24,6 +24,7 @@ def root():
 @app.get('/jobs')
 def get_jobs(db : Session = Depends(get_db)):
     jobs = db.query(JobDetail).all()
+    print(len(jobs))
     return jobs
 
 @app.get('/job-categories')

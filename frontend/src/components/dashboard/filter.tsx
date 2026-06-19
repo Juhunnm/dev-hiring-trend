@@ -3,7 +3,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "../ui/skeleton";
 
-export default function Filter() {
+export default function Filter({ selectedRole, onRoleChange }) {
   const { data, isPending, error } = useQuery({
     queryKey: ["job-categories"],
     queryFn: getJobCategories,
@@ -18,12 +18,15 @@ export default function Filter() {
       <span className="text-muted-foreground">&nbsp;--role&nbsp;</span>
 
       <ToggleGroup
+        className="px-1 py-2"
         type="single"
         size="sm"
         defaultValue="all"
         variant="outline"
         spacing={2}
-        className="px-1 py-2"
+        onValueChange={(v) => {
+          if (v) onRoleChange(v);
+        }}
       >
         {isPending ? (
           Array(5)

@@ -2,7 +2,7 @@ import math
 from urllib.parse import parse_qs, urlparse
 from playwright.sync_api import sync_playwright
 
-from backend.config import BASE_URL, JOB_CATEGORIES, PER_PAGE
+from config import BASE_URL, JOB_CATEGORIES, PER_PAGE
 from app.database import SessionLocal
 from app.models import JobIndex
 
@@ -34,7 +34,7 @@ with sync_playwright() as p:
         count = 0
 
         for page_num in  range(1,total_pages + 1) :
-            print(f"{page_num}/{total_pages} 페이지 수집 중 ...")
+            print(f"[{job_name}] {page_num}/{total_pages} 페이지 수집 중 ...")
 
             url = f"{list_url}&page={page_num}"
             page.goto(url)
