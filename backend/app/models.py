@@ -1,4 +1,5 @@
 from code import interact
+from xmlrpc.client import boolean
 
 from sqlalchemy import Boolean, Column, DateTime, Integer, String, Text, UniqueConstraint, func
 
@@ -16,6 +17,7 @@ class JobDetail(Base):
     content    = Column(Text)
     href       = Column(String(500))
     date       = Column(String(20)) 
+    is_failed = Column(Boolean,default=False)
     created_at = Column(DateTime, default=func.now())
 
 class JobIndex(Base):
@@ -28,6 +30,7 @@ class JobIndex(Base):
     href       = Column(String(500))
     job_name   = Column(String(100))
     is_crawled = Column(Boolean, default=False)
+    is_failed = Column(Boolean,default=False)
     crawled_at = Column(DateTime, default=func.now())
 
     # 복합 UNIQUE
