@@ -1,19 +1,23 @@
 import { getJobIndexes } from "@/api/dashboard";
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
+import Filter from "./filter";
+import { useSelectedRole } from "@/store/dashboard";
 // import { useEffect, useState } from "react";
 
 export default function Terminal() {
+  const selectedRole = useSelectedRole();
   const { data, isPending, error } = useQuery({
     queryKey: ["job_index"],
     queryFn: getJobIndexes,
   });
   return (
     <Card className="font-mono">
-      <CardContent className="p-4 space-y-1">
+      <CardContent className="px-4 py-2 space-y-1">
         <div className="flex gap-2 text-sm">
           <span className="text-green-400">$</span>
-          <span className="">fetch</span>
+          <span>fetch</span>
+          <span className="text-muted-foreground">--role={selectedRole}</span>
         </div>
         <div className="ml-5">
           <div className="flex gap-2 text-sm ">
@@ -35,6 +39,8 @@ export default function Terminal() {
             last updated: 2026. 6. 17. | source: saramin
           </div>
         </div>
+        {/* filter */}
+        <Filter />
       </CardContent>
     </Card>
   );

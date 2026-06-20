@@ -17,12 +17,14 @@ export default function Filter() {
     return <div className="font-mono text-red-400">error: {error.message}</div>;
 
   return (
-    <div className="flex items-center font-mono text-sm">
-      <span className="text-green-400">&gt;</span>
-      <span className="text-muted-foreground">&nbsp;--role&nbsp;</span>
+    <div className="flex py-2 font-mono text-sm ml-5">
+      {/* <span className="text-green-400">$</span>
+      <span className="text-muted-foreground whitespace-nowrap">
+        &nbsp;--role&nbsp;
+      </span> */}
 
       <ToggleGroup
-        className="px-1 py-2 "
+        className=" flex-wrap"
         type="single"
         size="sm"
         defaultValue="all"
