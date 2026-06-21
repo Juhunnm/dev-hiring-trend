@@ -3,6 +3,7 @@ import os
 from dotenv import load_dotenv
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends, FastAPI
+from sqlalchemy import func
 from sqlalchemy.orm import Session
 from app.database import get_db
 from app.models import JobDetail, JobIndex
@@ -29,8 +30,12 @@ def get_jobs(db : Session = Depends(get_db)):
 
 @app.get('/job-categories')
 def get_job_categories(db : Session = Depends(get_db)):
-    job_categories = db.query(JobIndex.job_name).distinct().all()
-    # print(job_categories)
+    # job_categories = db.query(JobIndex.job_name).distinct().all()
+    job_categories = db.query(JobDetail.job_name)\
+    .group_by(JobDetail.job_name)\
+    .order_by(func.count(JobDetail.job_name)\
+    .desc()).all()
+    print(job_categories)
     return [c.job_name for c in job_categories]
 
 # 직무별 공고
