@@ -23,8 +23,20 @@ export default function GlobalLayout() {
       <main className="m-auto w-full flex-1 px-2 py-4">
         <Outlet />
       </main>
-      <footer>
-        <div>updated 2026-06-16 14:02 KST</div>
+      <footer className="h-10 border-t font-mono text-xs text-muted-foreground">
+        <div className="m-auto flex h-full w-full justify-between px-4 items-center">
+          <div className="flex gap-2">
+            <span className="text-green-400">$</span>
+            <span>dev-hiring-trend v1.0.0</span>
+          </div>
+          <div className="flex gap-2">
+            <span>last updated:</span>
+            <span className="text-green-400">
+              {new Date().toLocaleDateString("ko-KR")}
+            </span>
+          </div>
+          <div>© 2026 dev-hiring-trend</div>
+        </div>
       </footer>
     </div>
   );

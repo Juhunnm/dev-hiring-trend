@@ -21,19 +21,27 @@ export default function TopSkillsTable() {
   });
   return (
     <div className="font-mono">
-      <div className="text-muted-foreground text-xs mb-2">
-        top_10_skills.json
+      <div className="text-muted-foreground flex justify-between text-xs mb-2 ">
+        <span>top_10_skills.json</span>
+        <span>
+          {isPending ? "loading..." : `total ${data?.length} skills found`}
+        </span>
       </div>
+      <div></div>
 
       <div className="max-h-[400px] overflow-y-auto border rounded-md">
         <Table className="felx flex-col">
-          <TableHeader className="sticky top-0 border-b backdrop-blur-sm bg-background/25   ">
+          <TableHeader className="sticky top-0 border-b backdrop-blur-sm bg-background/25 ">
             <TableRow>
-              <TableHead className="w-[100px]">#</TableHead>
-              <TableHead>skill_name</TableHead>
-              <TableHead>category</TableHead>
-              <TableHead>count</TableHead>
-              <TableHead>grow</TableHead>
+              <TableHead className="w-[100px] text-muted-foreground">
+                #
+              </TableHead>
+              <TableHead className="text-muted-foreground">
+                skill_name
+              </TableHead>
+              <TableHead className="text-muted-foreground">category</TableHead>
+              <TableHead className="text-muted-foreground">count</TableHead>
+              <TableHead className="text-muted-foreground">grow</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -62,7 +70,7 @@ export default function TopSkillsTable() {
                   ))
               : data?.map((d, index) => (
                   <TableRow key={d.tech}>
-                    <TableCell className="font-medium">
+                    <TableCell className="font-medium text-muted-foreground">
                       {String(index + 1).padStart(2, "0")}
                     </TableCell>
                     <TableCell>{d.tech}</TableCell>
@@ -72,9 +80,7 @@ export default function TopSkillsTable() {
                   </TableRow>
                 ))}
           </TableBody>
-          <TableCaption className="text-xs">
-            {isPending ? "loading..." : `total ${data?.length} skills found`}
-          </TableCaption>
+          <TableCaption className="text-xs"></TableCaption>
         </Table>
       </div>
     </div>

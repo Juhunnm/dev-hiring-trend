@@ -25,6 +25,8 @@ const CustomContent = ({ x, y, width, height, name, value, root }) => {
         y={y}
         width={width}
         height={height}
+        rx={6}
+        ry={6}
         fill={color}
         stroke="var(--background)"
       />
@@ -51,14 +53,19 @@ export default function TechTreemap() {
   });
 
   return (
-    <ResponsiveContainer width="100%" height={400}>
-      <Treemap
-        data={data}
-        dataKey="count"
-        nameKey="tech"
-        content={<CustomContent />}
-        isAnimationActive={false}
-      />
-    </ResponsiveContainer>
+    <div>
+      <div className="text-muted-foreground text-xs mb-2 ">
+        <span>{selectedRole}_treemap.svg</span>
+      </div>
+      <ResponsiveContainer width="100%" height={400}>
+        <Treemap
+          data={data}
+          dataKey="count"
+          nameKey="tech"
+          content={<CustomContent />}
+          isAnimationActive={false}
+        />
+      </ResponsiveContainer>
+    </div>
   );
 }
