@@ -1,6 +1,16 @@
+import { getLastUpdated } from "@/api/dashboard";
+import { useQuery } from "@tanstack/react-query";
 import { Outlet } from "react-router-dom";
 
 export default function GlobalLayout() {
+  const {
+    data: lastUpdated,
+    isPending: isLastUpdatedPending,
+    error: lastUpdatedError,
+  } = useQuery({
+    queryKey: ["job-updated"],
+    queryFn: getLastUpdated,
+  });
   return (
     <div className=" flex flex-col min-h-[100vh]">
       <header className="h-15 border-b">
@@ -32,7 +42,7 @@ export default function GlobalLayout() {
           <div className="flex gap-2">
             <span>last updated:</span>
             <span className="text-green-400">
-              {new Date().toLocaleDateString("ko-KR")}
+              {isLastUpdatedPending ? "loading..." : lastUpdated?.last_updated}
             </span>
           </div>
           <div>© 2026 dev-hiring-trend</div>

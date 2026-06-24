@@ -1,4 +1,4 @@
-import { getJobIndexes } from "@/api/dashboard";
+import { getJobIndexes, getLastUpdated } from "@/api/dashboard";
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
 import Filter from "./filter";
@@ -7,10 +7,21 @@ import { useSelectedRole } from "@/store/dashboard";
 
 export default function Terminal() {
   const selectedRole = useSelectedRole();
-  const { data, isPending, error } = useQuery({
-    queryKey: ["job_index"],
+  const {
+    data,
+    isPending: isJobIndexPending,
+    error,
+  } = useQuery({
+    queryKey: ["job-index"],
     queryFn: getJobIndexes,
   });
+  const { data: lastUpdated, isPending: isLastUpdatedPending } = useQuery({
+    queryKey: ["job-updated"],
+    queryFn: getLastUpdated,
+  });
+
+  const isPending = isJobIndexPending || isLastUpdatedPending;
+
   return (
     <Card className="font-mono">
       <CardContent className="px-4 py-2 space-y-1">
@@ -36,7 +47,8 @@ export default function Terminal() {
 
           {/* 메타 정보 */}
           <div className="text-muted-foreground text-xs">
-            last updated: 2026. 6. 17. | source: saramin
+            last updated :{" "}
+            {isLastUpdatedPending ? "loading..." : lastUpdated?.last_updated}
           </div>
         </div>
         {/* filter */}

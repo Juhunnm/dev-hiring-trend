@@ -65,3 +65,8 @@ def get_stats(job_name : str = None,db: Session = Depends(get_db)):
         {"tech": tech, "count": count}
         for tech, count in counter.most_common()
     ]
+
+@app.get('/last-updated')
+def get_last_updated(db : Session = Depends(get_db)):
+    result = db.query(func.max(JobIndex.crawled_at)).scalar()
+    return{"last_updated" : result}
