@@ -3,11 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Outlet } from "react-router-dom";
 
 export default function GlobalLayout() {
-  const {
-    data: lastUpdated,
-    isPending: isLastUpdatedPending,
-    error: lastUpdatedError,
-  } = useQuery({
+  const { data: lastUpdated, isPending: isLastUpdatedPending } = useQuery({
     queryKey: ["job-updated"],
     queryFn: getLastUpdated,
   });
