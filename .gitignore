@@ -26,3 +26,6 @@ frontend/dist/
 
 # requirements
 requirements.txt
+
+# Docker
+.dockerignore
