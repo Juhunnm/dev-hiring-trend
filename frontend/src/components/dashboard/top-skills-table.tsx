@@ -12,6 +12,11 @@ import { useQuery } from "@tanstack/react-query";
 import { Skeleton } from "../ui/skeleton";
 import { useSelectedRole } from "@/store/dashboard";
 
+interface StateItem {
+  tech: string;
+  count: number;
+}
+
 export default function TopSkillsTable() {
   const selectedRole = useSelectedRole();
 
@@ -19,6 +24,7 @@ export default function TopSkillsTable() {
     queryKey: ["stats", selectedRole],
     queryFn: () => getStats(selectedRole),
   });
+
   return (
     <div className="font-mono">
       <div className="text-muted-foreground flex justify-between text-xs mb-2 ">
@@ -68,7 +74,7 @@ export default function TopSkillsTable() {
                       </TableCell>
                     </TableRow>
                   ))
-              : data?.map((d, index) => (
+              : data?.map((d: StateItem, index: number) => (
                   <TableRow key={d.tech}>
                     <TableCell className="font-medium text-muted-foreground">
                       {String(index + 1).padStart(2, "0")}

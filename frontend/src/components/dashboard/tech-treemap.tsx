@@ -3,7 +3,6 @@ import { useSelectedRole } from "@/store/dashboard";
 import { useQuery } from "@tanstack/react-query";
 import { ResponsiveContainer, Treemap } from "recharts";
 
-const COLORS = ["#39D353", "#26A641", "#006D32", "#0E4429", "#161B22"];
 const getColor = (count: number, maxCount: number) => {
   const ratio = count / maxCount; // 0 ~ 1 사이 값
 
@@ -14,7 +13,24 @@ const getColor = (count: number, maxCount: number) => {
   if (ratio > 0.2) return "#0E4429";
   return "#161B22";
 };
-const CustomContent = ({ x, y, width, height, name, value, root }) => {
+interface CustomContentProps {
+  x: number;
+  y: number;
+  width: number;
+  height: number;
+  name: string;
+  value: number;
+  root?: { children?: { value: number }[] };
+}
+const CustomContent = ({
+  x,
+  y,
+  width,
+  height,
+  name,
+  value,
+  root,
+}: CustomContentProps) => {
   const maxCount = root?.children?.[0]?.value ?? value;
   const color = getColor(value, maxCount);
 
@@ -47,7 +63,7 @@ const CustomContent = ({ x, y, width, height, name, value, root }) => {
 export default function TechTreemap() {
   const selectedRole = useSelectedRole();
 
-  const { data, isPending } = useQuery({
+  const { data } = useQuery({
     queryKey: ["stats", selectedRole],
     queryFn: () => getStats(selectedRole),
   });
@@ -62,7 +78,9 @@ export default function TechTreemap() {
           data={data}
           dataKey="count"
           nameKey="tech"
-          content={<CustomContent />}
+          content={
+            <CustomContent x={0} y={0} width={0} height={0} name="" value={0} />
+          }
           isAnimationActive={false}
         />
       </ResponsiveContainer>

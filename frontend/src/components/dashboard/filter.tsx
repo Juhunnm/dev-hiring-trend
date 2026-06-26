@@ -44,7 +44,7 @@ export default function Filter() {
             <ToggleGroupItem className="cursor-pointer" value="all">
               All
             </ToggleGroupItem>
-            {data?.map((f) => (
+            {data?.map((f: string) => (
               <ToggleGroupItem className="cursor-pointer" key={f} value={f}>
                 {f}
               </ToggleGroupItem>

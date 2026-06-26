@@ -24,8 +24,6 @@ frontend/node_modules/
 # Vite 빌드
 frontend/dist/
 
-# requirements
-requirements.txt
 
 # Docker
 .dockerignore

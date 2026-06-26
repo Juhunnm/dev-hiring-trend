@@ -12,7 +12,7 @@ const initialState: State = {
 const useSelectedRoleStore = create(
   combine(initialState, (set) => ({
     actions: {
-      setSelectedRole: (role) => set({ selectedRole: role }),
+      setSelectedRole: (role: string) => set({ selectedRole: role }),
     },
   })),
 );
