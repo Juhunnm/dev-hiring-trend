@@ -7,37 +7,42 @@ services:
       POSTGRES_PASSWORD: ${DB_PASSWORD}
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks: [devtrend_net]
     restart: unless-stopped
 
   backend:
     build: ./backend
     environment:
-      DATABASE_URL: ${DATABASE_URL}
-      FRONTEND_URL: ${FRONTEND_URL}
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${DB_PASSWORD}@db:5432/${POSTGRES_DB}
     depends_on:
-      - db
-    ports:
-      - "8000:8000"
+      db:
+        condition: service_healthy
+    networks: [devtrend_net]
     restart: unless-stopped
 
   frontend:
-    build:
-      context: ./frontend
-      args:
-        VITE_API_URL: ${VITE_API_URL}
-    ports:
-      - "3000:80"
+    build: ./frontend
+    networks: [devtrend_net]
     restart: unless-stopped
 
   nginx:
+    container_name: devtrend-nginx
     image: nginx:alpine
-    ports:
-      - "80:80"
     volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf
-    depends_on:
-      - frontend
-      - backend
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+    depends_on: [frontend, backend]
+    networks: [devtrend_net, public_net]
     restart: unless-stopped
+
 volumes:
   postgres_data:
+
+networks:
+  devtrend_net:
+  public_net:
+    external: true

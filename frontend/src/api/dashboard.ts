@@ -1,24 +1,24 @@
 export async function getJobIndexes() {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/jobs`);
+  const res = await fetch(`/api/jobs`);
   return res.json();
 }
 
 export async function getJobCategories() {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/job-categories`);
+  const res = await fetch(`/api/job-categories`);
   return res.json();
 }
 
 export async function getStats(jobName?: string) {
   const url =
     jobName && jobName !== "all"
-      ? `${import.meta.env.VITE_API_URL}/stats?job_name=${jobName}`
-      : `${import.meta.env.VITE_API_URL}/stats`;
+      ? `/api/stats?job_name=${jobName}`
+      : `/api/stats`;
 
   const res = await fetch(url);
   return res.json();
 }
 export async function getLastUpdated() {
-  const res = await fetch(`${import.meta.env.VITE_API_URL}/last-updated`);
+  const res = await fetch(`/api/last-updated`);
 
   if (!res.ok) {
     throw new Error("last_updated 조회 실패");
