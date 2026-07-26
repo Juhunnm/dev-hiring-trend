@@ -1,6 +1,8 @@
 import math
+import os
 from urllib.parse import parse_qs, urlparse
 from playwright.sync_api import sync_playwright
+from playwright_stealth import Stealth
 
 from config import BASE_URL, JOB_CATEGORIES, PER_PAGE
 from app.database import SessionLocal
@@ -9,12 +11,12 @@ from app.models import JobIndex
 db = SessionLocal()
 total_count = 0
 
-# 기존에 수집한 rec_idx를 미리 메모리에 로드 (중복 판별용)
 existing_ids = set(r[0] for r in db.query(JobIndex.rec_idx).all())
 print(f"기존 공고 {len(existing_ids)}개 로드됨")
 
-with sync_playwright() as p:
-    browser = p.chromium.launch(headless=False)
+with Stealth().use_sync(sync_playwright()) as p:
+    headless = os.getenv("HEADLESS", "true").lower() == "true"
+    browser = p.chromium.launch(headless=headless)
     page = browser.new_page()
 
     for job_name, job_code in JOB_CATEGORIES.items():
@@ -23,7 +25,6 @@ with sync_playwright() as p:
         list_url = f"{BASE_URL}/zf_user/jobs/list/job-category?cat_kewd={job_code}"
         page.goto(list_url)
 
-        # 공고 총 개수
         total_tag = page.query_selector(".common_recruilt_list .total_count em")
         if not total_tag:
             print(f"[{job_name}] 공고 없음 스킵")
@@ -45,20 +46,15 @@ with sync_playwright() as p:
             jobs = page.query_selector_all(".list_recruiting .list_item")
 
             for job in jobs:
-                # 회사명
                 company_tag = job.query_selector(".col.company_nm a.str_tit")
                 if not company_tag:
                     company_tag = job.query_selector(".col.company_nm span.str_tit")
                 company = company_tag.inner_text().strip() if company_tag else "없음"
 
-                # 공고 제목
                 title_tag = job.query_selector(".job_tit a")
                 title = title_tag.inner_text().strip() if title_tag else "없음"
-
-                # href 추출
                 href = title_tag.get_attribute("href") if title_tag else "없음"
 
-                # rec_idx 추출 (파싱 실패는 건너뜀)
                 try:
                     parsed = parse_qs(urlparse(href).query)
                     rec_idx = parsed["rec_idx"][0]
@@ -66,11 +62,9 @@ with sync_playwright() as p:
                     print(f"  rec_idx 추출 실패, 건너뜀: {href}")
                     continue
 
-                # 이미 있으면 조용히 건너뜀
                 if rec_idx in existing_ids:
                     continue
 
-                # 새 공고 저장
                 try:
                     job_index = JobIndex(
                         rec_idx=rec_idx,
