@@ -13,19 +13,19 @@ load_dotenv()
 
 app = FastAPI()
 
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[os.getenv("FRONTEND_URL")],
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=[os.getenv("FRONTEND_URL")],
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 
 @app.get("/")
 def root():
     return {"message": "hello"}
 
 # 전체 직무 공고
-@app.get('/jobs', response_model=list[JobDetailResponse])
+@app.get('/api/jobs', response_model=list[JobDetailResponse])
 def get_jobs(db : Session = Depends(get_db)):
     return db.query(
         JobDetail.id,
@@ -38,7 +38,7 @@ def get_jobs(db : Session = Depends(get_db)):
     ).all()
 
 # 직무별 공고
-@app.get('/jobs/{job_name}',response_model=list[JobDetailResponse])
+@app.get('/api/jobs/{job_name}',response_model=list[JobDetailResponse])
 def get_job_by_name(job_name : str,db : Session = Depends(get_db)):
     return db.query(
         JobDetail.id,
@@ -51,7 +51,7 @@ def get_job_by_name(job_name : str,db : Session = Depends(get_db)):
     ).filter(JobDetail.job_name == job_name).all()
  
 # 카테고리별 직무 이름
-@app.get('/job-categories')
+@app.get('/api/job-categories')
 def get_job_categories(db : Session = Depends(get_db)):
     job_categories = (
         db.query(JobDetail.job_name)
@@ -64,7 +64,7 @@ def get_job_categories(db : Session = Depends(get_db)):
 
 
 # 기술스택 통계
-@app.get("/stats",response_model=list[StatsResponse])
+@app.get("/api/stats",response_model=list[StatsResponse])
 def get_stats(job_name : str = None,db: Session = Depends(get_db)):
     query = db.query(JobDetail)
 
@@ -85,7 +85,7 @@ def get_stats(job_name : str = None,db: Session = Depends(get_db)):
     ]
 
 # 메타 데이터 (마지막 크롤링 날짜)
-@app.get('/last-updated', response_model=LastUpdatedResponse)
+@app.get('/api/last-updated', response_model=LastUpdatedResponse)
 def get_last_updated(db : Session = Depends(get_db)):
     result = db.query(func.max(JobIndex.crawled_at)).scalar()
     return{"last_updated" : result}
