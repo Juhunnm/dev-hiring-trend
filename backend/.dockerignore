@@ -22,7 +22,3 @@ __pycache__/
 .gitignore
 .DS_Store
 Thumbs.db
-
-# 크롤러
-crawler/
-requirements-crawler.txt
