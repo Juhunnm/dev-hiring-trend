@@ -38,6 +38,19 @@ services:
     depends_on: [frontend, backend]
     networks: [devtrend_net, public_net]
     restart: unless-stopped
+  crawler:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.crawler
+    environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${DB_PASSWORD}@db:5432/${POSTGRES_DB}
+      HEADLESS: "true"
+    depends_on:
+      db:
+        condition: service_healthy
+    networks: [devtrend_net]
+    profiles: [batch]
+    restart: "no"
 
 volumes:
   postgres_data:
