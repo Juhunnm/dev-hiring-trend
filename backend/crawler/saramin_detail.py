@@ -3,21 +3,13 @@ import time
 import os
 from datetime import datetime
 from playwright.sync_api import sync_playwright
-from config import BASE_URL, TECH_KEYWORDS
+from config import BASE_URL, TECH_KEYWORDS,extract_keywords
 from app.database import SessionLocal
 from app.models import JobDetail, JobIndex
 from playwright_stealth import Stealth
 
 
 db = SessionLocal()
-
-def extract_keywords(text):
-    found = []
-    for keyword in TECH_KEYWORDS:
-        if keyword.lower() in text.lower():
-            found.append(keyword)
-    return ", ".join(found)
-
 
 today = datetime.now().strftime("%Y%m%d")
 
