@@ -1,0 +1,28 @@
+import logging
+
+from dotenv import load_dotenv
+import os
+
+from sqlalchemy import create_engine
+from sqlalchemy.orm import declarative_base, sessionmaker
+
+load_dotenv()
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+DATABASE_URL = os.getenv("DATABASE_URL")
+engine = create_engine(DATABASE_URL)
+
+logger.info("DB 연결 성공 🦕")
+
+SessionLocal = sessionmaker(autocommit=False,autoflush=False,bind=engine)
+
+Base = declarative_base() #테이블 구조를 python 클래스로 만들떄 필요함
+
+def get_db():
+    db = SessionLocal()
+    try :
+        yield db
+    finally:
+        db.close()

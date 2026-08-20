@@ -1,0 +1,29 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          clean: false  # .env 등 gitignore된 파일이 지워지지 않도록
+
+      - name: Restore .env
+        run: cp ~/deploy-secrets/.env .env
+
+      - name: Build images
+        run: docker compose build
+
+      - name: Run DB migrations
+        run: docker compose run --rm backend alembic upgrade head
+
+      - name: Deploy
+        run: docker compose up -d --remove-orphans
+
+      - name: Clean up dangling images
+        run: docker image prune -f

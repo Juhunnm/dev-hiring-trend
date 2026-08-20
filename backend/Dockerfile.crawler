@@ -1,0 +1,12 @@
+FROM python:3.11-slim
+WORKDIR /app
+
+# requirements 먼저 (캐싱)
+COPY requirements.txt requirements-crawler.txt ./
+RUN pip install --no-cache-dir -r requirements-crawler.txt
+RUN playwright install --with-deps chromium
+
+# 코드는 나중에
+COPY . .
+
+CMD ["python", "-m", "crawler.detail_crawler"]
