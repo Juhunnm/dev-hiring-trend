@@ -9,4 +9,4 @@ RUN playwright install --with-deps chromium
 # 코드는 나중에
 COPY . .
 
-CMD ["python", "-m", "crawler.saramin_detail"]
+CMD ["python", "-m", "crawler.detail_crawler"]
