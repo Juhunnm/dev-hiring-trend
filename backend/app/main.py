@@ -1,13 +1,11 @@
-from collections import Counter
-import os
 from dotenv import load_dotenv
-from fastapi.middleware.cors import CORSMiddleware
 from fastapi import Depends, FastAPI
 from sqlalchemy import func
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
+
 from app.database import get_db
-from app.models import JobDetail, JobIndex
-from app.schemas import JobDetailResponse, LastUpdatedResponse, StatsResponse
+from app.models import JobCategory, JobPosting, JobPostingCategory, JobPostingSkill, PostingStatus, Skill
+from app.schemas import JobPostingResponse, LastUpdatedResponse, StatsResponse
 
 load_dotenv()
 
@@ -20,72 +18,88 @@ app = FastAPI()
 #     allow_headers=["*"],
 # )
 
+
 @app.get("/")
 def root():
     return {"message": "hello"}
 
-# 전체 직무 공고
-@app.get('/api/jobs', response_model=list[JobDetailResponse])
-def get_jobs(db : Session = Depends(get_db)):
-    return db.query(
-        JobDetail.id,
-        JobDetail.company,
-        JobDetail.title,
-        JobDetail.job_name,
-        JobDetail.tech_stack,
-        JobDetail.href,
-        JobDetail.date
-    ).all()
+
+def _to_response(posting: JobPosting) -> JobPostingResponse:
+    return JobPostingResponse(
+        id=posting.id,
+        company=posting.company,
+        title=posting.title,
+        url=posting.url,
+        status=posting.status.value,
+        categories=[c.name for c in posting.categories],
+        skills=[s.name for s in posting.skills],
+    )
+
+
+# 전체 공고
+@app.get("/api/jobs", response_model=list[JobPostingResponse])
+def get_jobs(db: Session = Depends(get_db)):
+    postings = (
+        db.query(JobPosting)
+        .options(joinedload(JobPosting.categories), joinedload(JobPosting.skills))
+        .all()
+    )
+    return [_to_response(p) for p in postings]
+
 
 # 직무별 공고
-@app.get('/api/jobs/{job_name}',response_model=list[JobDetailResponse])
-def get_job_by_name(job_name : str,db : Session = Depends(get_db)):
-    return db.query(
-        JobDetail.id,
-        JobDetail.company,
-        JobDetail.title,
-        JobDetail.job_name,
-        JobDetail.tech_stack,
-        JobDetail.href,
-        JobDetail.date,
-    ).filter(JobDetail.job_name == job_name).all()
- 
-# 카테고리별 직무 이름
-@app.get('/api/job-categories')
-def get_job_categories(db : Session = Depends(get_db)):
-    job_categories = (
-        db.query(JobDetail.job_name)
-        .group_by(JobDetail.job_name)
-        .order_by(func.count(JobDetail.job_name)
-        .desc()).all()
+@app.get("/api/jobs/{job_name}", response_model=list[JobPostingResponse])
+def get_job_by_name(job_name: str, db: Session = Depends(get_db)):
+    postings = (
+        db.query(JobPosting)
+        .join(JobPosting.categories)
+        .filter(JobCategory.name == job_name)
+        .options(joinedload(JobPosting.categories), joinedload(JobPosting.skills))
+        .all()
     )
-    return [c.job_name for c in job_categories]
+    return [_to_response(p) for p in postings]
 
+
+# 카테고리별 직무 이름 (공고 수 많은 순)
+@app.get("/api/job-categories")
+def get_job_categories(db: Session = Depends(get_db)):
+    rows = (
+        db.query(JobCategory.name, func.count(JobPostingCategory.job_posting_id).label("cnt"))
+        .join(JobPostingCategory, JobPostingCategory.category_id == JobCategory.id)
+        .join(JobPosting, JobPosting.id == JobPostingCategory.job_posting_id)
+        .filter(JobPosting.status != PostingStatus.PENDING)
+        .group_by(JobCategory.name)
+        .order_by(func.count(JobPostingCategory.job_posting_id).desc())
+        .all()
+    )
+    return [r.name for r in rows]
 
 
 # 기술스택 통계
-@app.get("/api/stats",response_model=list[StatsResponse])
-def get_stats(job_name : str = None,db: Session = Depends(get_db)):
-    query = db.query(JobDetail)
+@app.get("/api/stats", response_model=list[StatsResponse])
+def get_stats(job_name: str | None = None, db: Session = Depends(get_db)):
+    query = db.query(
+        Skill.name,
+        func.count(func.distinct(JobPostingSkill.job_posting_id)).label("cnt"),
+    ).join(JobPostingSkill, JobPostingSkill.skill_id == Skill.id)
 
-    if(job_name) :
-        query = query.filter(JobDetail.job_name == job_name)
+    if job_name:
+        query = (
+            query.join(JobPosting, JobPosting.id == JobPostingSkill.job_posting_id)
+            .join(JobPostingCategory, JobPostingCategory.job_posting_id == JobPosting.id)
+            .join(JobCategory, JobCategory.id == JobPostingCategory.category_id)
+            .filter(JobCategory.name == job_name)
+        )
 
-    jobs = query.all()
+    rows = query.group_by(Skill.name).order_by(
+        func.count(func.distinct(JobPostingSkill.job_posting_id)).desc()
+    ).all()
 
-    counter = Counter()
-    for job in jobs:
-        if job.tech_stack:
-            keywords = [k.strip() for k in job.tech_stack.split(",")]
-            counter.update(keywords)
+    return [{"tech": name, "count": cnt} for name, cnt in rows]
 
-    return [
-        {"tech": tech, "count": count}
-        for tech, count in counter.most_common()
-    ]
 
-# 메타 데이터 (마지막 크롤링 날짜)
-@app.get('/api/last-updated', response_model=LastUpdatedResponse)
-def get_last_updated(db : Session = Depends(get_db)):
-    result = db.query(func.max(JobIndex.crawled_at)).scalar()
-    return{"last_updated" : result}
+# 메타 데이터 (마지막 목록 수집 시각)
+@app.get("/api/last-updated", response_model=LastUpdatedResponse)
+def get_last_updated(db: Session = Depends(get_db)):
+    result = db.query(func.max(JobPosting.indexed_at)).scalar()
+    return {"last_updated": result}
