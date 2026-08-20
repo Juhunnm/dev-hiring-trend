@@ -1,13 +1,17 @@
+import logging
+
+from crawler.keyword_extractor import extract_keywords
 from app.database import SessionLocal
 from app.models import JobDetail
-from config import extract_keywords
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
+logger = logging.getLogger(__name__)
 
 
 def main():
     db = SessionLocal()
-
     jobs = db.query(JobDetail).filter(JobDetail.content != "").all()
-    print(f"총 {len(jobs)}개 재추출 시작")
+    logger.info("총 %d개 재추출 시작", len(jobs))
 
     updated = 0
     for i, job in enumerate(jobs):
@@ -17,10 +21,10 @@ def main():
             updated += 1
         if (i + 1) % 500 == 0:
             db.commit()
-            print(f"  {i+1}/{len(jobs)} 처리...")
+            logger.info("%d/%d 처리...", i + 1, len(jobs))
 
     db.commit()
-    print(f"완료: {updated}개 갱신됨")
+    logger.info("완료: %d개 갱신됨", updated)
     db.close()
 
 
