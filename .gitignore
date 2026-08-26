@@ -13,6 +13,9 @@ __pycache__/
 # 데이터 파일
 data/
 *.csv
+# 단, 키워드 사전은 코드에 필요한 데이터라 커밋 대상
+!backend/crawler/data/
+!backend/crawler/data/tech_keywords.json
 
 # Mac
 .DS_Store
